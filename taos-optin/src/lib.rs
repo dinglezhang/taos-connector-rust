@@ -10,7 +10,7 @@ use raw::{ApiEntry, RawRes, RawTaos, SharedState};
 // use taos_error::Error as RawError;
 use taos_query::{
     prelude::{Field, Precision, RawError, RawMeta},
-     DsnError, RawBlock, TBuilder,
+    DsnError, RawBlock, TBuilder,
 };
 
 mod version {
@@ -349,8 +349,14 @@ impl TBuilder for TaosBuilder {
     }
 
     fn ping(&self, conn: &mut Self::Target) -> Result<(), Self::Error> {
-        conn.raw.query("select 1")?;
-        Ok(())
+        return Ok(());
+        match conn.raw.query("select 1") {
+            Ok(_) => Ok(()),
+            Err(err) => {
+                log::warn!("Ping connection error: {err}");
+                Err(err)?
+            }
+        }
     }
 
     fn ready(&self) -> bool {
